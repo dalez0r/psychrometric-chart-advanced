@@ -11,7 +11,7 @@ class PsychrometricChartEnhanced extends HTMLElement {
         this._previousValues = new Map();
         this._resizeDebounceTimer = null;
         this._lastRenderTime = 0;
-        this._language = 'fr'; // Default language
+        this._language = 'en'; // Default language
         this._temperatureUnit = null; // Will be auto-detected or set from config
 
         // Zoom and pan properties
@@ -338,12 +338,12 @@ class PsychrometricChartEnhanced extends HTMLElement {
 
     // Translation helper method
     t(key) {
-        return this.translations[this._language][key] || this.translations['fr'][key] || key;
+        return this.translations[this._language][key] || this.translations['en'][key] || key;
     }
 
     // Get language from config or use default
     getLanguage() {
-        return this.config && this.config.language ? this.config.language : 'fr';
+        return this.config && this.config.language ? this.config.language : 'en';
     }
 
     set hass(hass) {
@@ -461,6 +461,9 @@ class PsychrometricChartEnhanced extends HTMLElement {
     }
 
     render(hass) {
+        // Set language FIRST before anything else
+        this._language = this.getLanguage();
+
         // Traiter les points et les capteurs
         const points = this.config.points.map((point) => {
             const tempState = hass.states[point.temp];
@@ -568,13 +571,24 @@ class PsychrometricChartEnhanced extends HTMLElement {
             return;
         }
 
+        // Get language-appropriate default chart title
+        const getDefaultChartTitle = () => {
+            const titles = {
+                'en': 'Psychrometric Chart',
+                'fr': 'Diagramme Psychrométrique',
+                'es': 'Diagrama Psicrométrico',
+                'de': 'Psychrometrisches Diagramm'
+            };
+            return titles[this._language] || titles['en'];
+        };
+
         // Configuration et options
         const {
             bgColor = "#ffffff",
             gridColor = "#cccccc",
             curveColor = "#1f77b4",
             textColor = "#333333",
-            chartTitle = "Diagramme Psychrométrique",
+            chartTitle = getDefaultChartTitle(),
             showCalculatedData = true,
             comfortColor = "rgba(144, 238, 144, 0.5)",
             showEnthalpy = true,
@@ -586,16 +600,12 @@ class PsychrometricChartEnhanced extends HTMLElement {
             darkMode = false,
             showMoldRisk = true,
             displayMode = "standard",
-            language = "fr",
             // Zoom configuration (in user's temperature unit)
             zoom_temp_min = null,
             zoom_temp_max = null,
             zoom_humidity_min = null,
             zoom_humidity_max = null,
         } = this.config;
-
-        // Mettre à jour la langue
-        this._language = language;
 
         // Calculate zoom and pan from configured range (convert to Celsius first)
         if (zoom_temp_min !== null && zoom_temp_max !== null) {
@@ -1247,7 +1257,8 @@ class PsychrometricChartEnhanced extends HTMLElement {
             const P_v_center = (humCenter / 100) * P_sat;
             const P_v_50 = (50 / 100) * P_sat;
 
-            const humOffset = (P_v_center - P_v_50) / 4 * 500 * (this.canvasHeight / 600);
+            // Invert the sign - higher humidity should pan up (negative Y)
+            const humOffset = (P_v_50 - P_v_center) / 4 * 500 * (this.canvasHeight / 600);
             this.panY = humOffset * this.zoomLevel;
         } else {
             this.panY = 0;
