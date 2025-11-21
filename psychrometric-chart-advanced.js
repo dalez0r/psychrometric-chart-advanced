@@ -608,21 +608,17 @@ class PsychrometricChartEnhanced extends HTMLElement {
         } = this.config;
 
         // Calculate zoom and pan from configured range (convert to Celsius first)
+        // NOTE: Zoom feature is currently disabled due to calculation issues
+        // The chart will display the full range regardless of zoom settings
         if (zoom_temp_min !== null && zoom_temp_max !== null) {
-            this.configuredZoomRange = {
-                tempMin: this.toInternalTemp(zoom_temp_min),
-                tempMax: this.toInternalTemp(zoom_temp_max),
-                humidityMin: zoom_humidity_min,
-                humidityMax: zoom_humidity_max
-            };
-            this.calculateZoomFromRange();
-        } else {
-            // Reset to default if no zoom configuration
-            this.zoomLevel = 1.0;
-            this.panX = 0;
-            this.panY = 0;
-            this.configuredZoomRange = null;
+            console.warn('Chart zoom is currently disabled due to viewport calculation issues. Displaying full range.');
         }
+        
+        // Always use default zoom (no zoom applied)
+        this.zoomLevel = 1.0;
+        this.panX = 0;
+        this.panY = 0;
+        this.configuredZoomRange = null;
 
         // Get internal comfort range (already converted above)
         const rawComfortRange = this.config.comfortRange || { tempMin: 20, tempMax: 26, rhMin: 40, rhMax: 60 };
@@ -1246,20 +1242,15 @@ class PsychrometricChartEnhanced extends HTMLElement {
         const tempOffset = fullChartCenter - desiredCenter;
         this.panX = tempOffset * 12 * (this.canvasWidth / 800) * this.zoomLevel;
 
-        // For humidity
+        // For humidity - simplified approach
+        // Note: Humidity zoom is tricky due to non-linear vapor pressure scale
+        // For now, only apply temperature zoom and let humidity span naturally
+        // TODO: Improve humidity zoom calculation
         if (this.configuredZoomRange.humidityMin !== null && this.configuredZoomRange.humidityMax !== null) {
-            const humMin = this.configuredZoomRange.humidityMin;
-            const humMax = this.configuredZoomRange.humidityMax;
-            const humCenter = (humMin + humMax) / 2;
-
-            const centerTemp = desiredCenter;
-            const P_sat = 0.61078 * Math.exp((17.27 * centerTemp) / (centerTemp + 237.3));
-            const P_v_center = (humCenter / 100) * P_sat;
-            const P_v_50 = (50 / 100) * P_sat;
-
-            // Invert the sign - higher humidity should pan up (negative Y)
-            const humOffset = (P_v_50 - P_v_center) / 4 * 500 * (this.canvasHeight / 600);
-            this.panY = humOffset * this.zoomLevel;
+            // Humidity zoom is currently disabled due to calculation issues
+            // Only temperature zoom is applied
+            console.warn('Humidity zoom is currently not fully supported. Only temperature zoom will be applied.');
+            this.panY = 0;
         } else {
             this.panY = 0;
         }
