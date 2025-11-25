@@ -11,7 +11,7 @@ class PsychrometricChartEnhanced extends HTMLElement {
         this._previousValues = new Map();
         this._resizeDebounceTimer = null;
         this._lastRenderTime = 0;
-        this._language = 'en'; // Default language
+        this._language = 'fr'; // Default language
         this._temperatureUnit = null; // Will be auto-detected or set from config
 
         // Zoom and pan properties
@@ -383,12 +383,12 @@ class PsychrometricChartEnhanced extends HTMLElement {
 
     // Translation helper method
     t(key) {
-        return this.translations[this._language][key] || this.translations['en'][key] || key;
+        return this.translations[this._language][key] || this.translations['fr'][key] || key;
     }
 
     // Get language from config or use default
     getLanguage() {
-        return this.config && this.config.language ? this.config.language : 'en';
+        return this.config && this.config.language ? this.config.language : 'fr';
     }
 
     set hass(hass) {
@@ -506,9 +506,6 @@ class PsychrometricChartEnhanced extends HTMLElement {
     }
 
     render(hass) {
-        // Set language FIRST before anything else
-        this._language = this.getLanguage();
-
         // Traiter les points et les capteurs
         const points = this.config.points.map((point) => {
             const tempState = hass.states[point.temp];
@@ -616,24 +613,13 @@ class PsychrometricChartEnhanced extends HTMLElement {
             return;
         }
 
-        // Get language-appropriate default chart title
-        const getDefaultChartTitle = () => {
-            const titles = {
-                'en': 'Psychrometric Chart',
-                'fr': 'Diagramme Psychrométrique',
-                'es': 'Diagrama Psicrométrico',
-                'de': 'Psychrometrisches Diagramm'
-            };
-            return titles[this._language] || titles['en'];
-        };
-
         // Configuration et options
         const {
             bgColor = "#ffffff",
             gridColor = "#cccccc",
             curveColor = "#1f77b4",
             textColor = "#333333",
-            chartTitle = getDefaultChartTitle(),
+            chartTitle = "Diagramme Psychrométrique",
             showCalculatedData = true,
             comfortColor = "rgba(144, 238, 144, 0.5)",
             showEnthalpy = true,
@@ -645,12 +631,16 @@ class PsychrometricChartEnhanced extends HTMLElement {
             darkMode = false,
             showMoldRisk = true,
             displayMode = "standard",
+            language = "fr",
             // Zoom configuration (in user's temperature unit)
             zoom_temp_min = null,
             zoom_temp_max = null,
             zoom_humidity_min = null,
             zoom_humidity_max = null,
         } = this.config;
+
+        // Mettre à jour la langue
+        this._language = language;
 
         // Calculate zoom and pan from configured range (convert to Celsius first)
         // NOTE: Zoom feature is currently disabled due to calculation issues
@@ -1292,10 +1282,24 @@ class PsychrometricChartEnhanced extends HTMLElement {
         // For now, only apply temperature zoom and let humidity span naturally
         // TODO: Improve humidity zoom calculation
         if (this.configuredZoomRange.humidityMin !== null && this.configuredZoomRange.humidityMax !== null) {
+<<<<<<< HEAD
             // Humidity zoom is currently disabled due to calculation issues
             // Only temperature zoom is applied
             console.warn('Humidity zoom is currently not fully supported. Only temperature zoom will be applied.');
             this.panY = 0;
+=======
+            const humMin = this.configuredZoomRange.humidityMin;
+            const humMax = this.configuredZoomRange.humidityMax;
+            const humCenter = (humMin + humMax) / 2;
+
+            const centerTemp = desiredCenter;
+            const P_sat = 0.61078 * Math.exp((17.27 * centerTemp) / (centerTemp + 237.3));
+            const P_v_center = (humCenter / 100) * P_sat;
+            const P_v_50 = (50 / 100) * P_sat;
+
+            const humOffset = (P_v_center - P_v_50) / 4 * 500 * (this.canvasHeight / 600);
+            this.panY = humOffset * this.zoomLevel;
+>>>>>>> parent of ba95102 (Change default language from French to English)
         } else {
             this.panY = 0;
         }
