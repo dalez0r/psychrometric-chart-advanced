@@ -7,7 +7,18 @@
   [![GitHub release](https://img.shields.io/github/release/guiohm79/psychrometric-chart-advanced.svg)](https://github.com/guiohm79/psychrometric-chart-advanced/releases)
   [![License](https://img.shields.io/github/license/guiohm79/psychrometric-chart-advanced.svg)](LICENSE)
   [![Buy Me a Coffee](https://img.shields.io/badge/Buy_Me_A_Coffee-FFDD00?style=flat-square&logo=buymeacoffee&logoColor=black)](https://buymeacoffee.com/guiohm79)
+  ![downloads-total][github-downloads]
+  ![downloads-latest][github-latest-downloads]
+  ![stars][github-stars]
 
+[github-downloads]: https://img.shields.io/github/downloads/guiohm79/psychrometric-chart-advanced/total?style=flat
+[github-latest-downloads]: https://img.shields.io/github/downloads/guiohm79/psychrometric-chart-advanced/latest/total?style=flat
+[github-stars]: https://img.shields.io/github/stars/guiohm79/psychrometric-chart-advanced?style=flat
+
+
+
+
+  
   **Language:** [🇬🇧 English](README.md) | [🇫🇷 Français](README.fr.md)
 </div>
 
