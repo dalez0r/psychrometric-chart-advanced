@@ -251,7 +251,7 @@ class PsychrometricChartEnhanced extends HTMLElement {
             }
         };
     }
-========================================
+    // ========================================
     // RANDOM COLOR GENERATION
     // ========================================
     
